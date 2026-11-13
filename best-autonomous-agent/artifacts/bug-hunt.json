@@ -1,0 +1,1 @@
+[{"expected":120,"fn":"factorial","input":[5],"why":"loop condition i<n drops the final factor: factorial(5) returns 24 instead of 120"},{"expected":5,"fn":"countVowels","input":["AEIOU"],"why":"regex /[aeiou]/ has no i flag, so uppercase vowels are missed: countVowels('AEIOU') returns 0 instead of 5"}]

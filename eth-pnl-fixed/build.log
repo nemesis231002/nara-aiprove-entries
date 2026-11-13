@@ -1,0 +1,18 @@
+# build.log — eth-pnl-fixed
+# Every command run for this bounty, in order, with outcome.
+# Working directory: ~/workspace/aiprove-agent/bounties/eth-pnl-fixed
+# (All exploration commands ran from that directory unless noted.)
+
+[2026-11-14 00:0x WIB] Read spec: aiprove/challenges/eth-backtest/README.md + bars.csv (1440 bars, head/tail checked; first close 2028.68, last close 1960.59).
+[2026-11-14 00:0x WIB] Read grader: aiprove/grader/README.md + src/metric.js + src/scorer.js — grader v1 is FORECAST-only (Brier scoring); it contains NO replay/fee schedule for this PnL bounty, so no sandbox fee parameters exist to match. Fees below are stated assumptions, not grader values.
+[2026-11-14 00:0x WIB] python3 --version -> 3.12.3; pandas 2.1.4, numpy 1.26.4 available.
+[2026-11-14 00:0x WIB] /tmp/explore.py — EMA-crossover grid (fast 12/20/30 x slow 48/60/100/120 x band 0/0.05%/0.10%), taker 0.10% + slip 0.02% per fill. RESULT: ALL 36 variants net-negative (best -47.41, worst -870.28); H1 negative in every variant. Conclusion: 1-min EMA crossover is structurally unprofitable after costs (mean |1m move| ~0.073% < ~0.24% round-trip cost).
+[2026-11-14 00:0x WIB] /tmp/explore2.py — other families, same costs: SMA-regime, Donchian breakout (30/60/120), RSI mean-reversion, Bollinger mean-reversion. Gross PnL of every family was small-positive ($30-$350) but costs ate it; best net: SMA360 short-only +$9.80, Donchian60 -$31.20, Donchian120 -$25.87. No family robustly positive in both halves.
+[2026-11-14 00:0x WIB] /tmp/explore3.py — Donchian + ATR(14) > 60-bar median ATR entry gate (gate blocks entries only, never exits) + cost sensitivity. Donchian120+gate: net +$360.48 (3 RT, WR 66.7%, MDD $252.24); Donchian60+gate: +$264.79 (6 RT). EMA30/100+gate discarded: gate-as-exit caused 118 fills, -$1,634.63.
+[2026-11-14 00:0x WIB] /tmp/explore4.py — Donchian 60/90/120 + gate, trade lists, thirds. W=90: net +$411.70, MDD $201.02, 3 RT, WR 66.7%, thirds -$49.44/+$292.81/+$105.92.
+[2026-11-14 00:0x WIB] /tmp/verify.py — independent fill-based replay of Donchian90+gate: gross $483.70, costs $72.00 (6 fills), net $411.70. Matches backtest.py exactly. (An earlier trade-list sum of $406.65 differed by $5.05 because it compounded returns within a trade; the backtest uses fixed-$10k per-bar MTM, which is the convention used everywhere in the reported numbers.)
+[2026-11-14 00:0x WIB] mkdir -p bounties/eth-pnl-fixed; cp bars.csv (frozen dataset copy) into it.
+[2026-11-14 00:0x WIB] Wrote strategy.py (strategy + backtest engine) and backtest.py (runner). Note: no git repo exists under ~/workspace/aiprove-agent (git rev-parse: not a git repository), so there is no commit hash to pin; the submission is this directory.
+[2026-11-14 00:0x WIB] python3 backtest.py bars.csv -> EXIT 0. Full net +$411.70, MDD $201.02, 6 fills, 3 RT, WR 66.7%; H1 -$111.29, H2 +$509.60; B&H -$335.64 (MDD $613.48). Wrote results.json, equity_curve.csv.
+[2026-11-14 00:0x WIB] Boundary reconciliation check (python3 -c): halves sum $398.31 vs full $411.70; gap $13.39 = $12 H1 split-boundary close cost + $1.39 MTM on bar 719->720 (short, close 2016.87 -> 2016.59). Thirds gap $38.41 = 2x$12 boundary closes + $12.30 (bar 479->480, long) + $2.11 (bar 959->960, short). Both reconcile exactly.
+[2026-11-14 00:0x WIB] Wrote README.md (this file's companion) and build.log. Removed __pycache__.

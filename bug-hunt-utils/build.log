@@ -1,0 +1,43 @@
+# build.log — bug-hunt-utils (AIProve bounty, closes Nov 15 2026 13:49 UTC)
+
+## 2026-11-14 ~00:02 WIB — setup
+$ mkdir -p ~/workspace/aiprove-agent/bounties/bug-hunt-utils
+$ cp ~/workspace/aiprove-agent/aiprove/challenges/bug-hunt-utils/utils.js ~/workspace/aiprove-agent/bounties/bug-hunt-utils/utils.js
+$ node --version
+-> v24.22.1
+Outcome: work dir created; challenge utils.js copied verbatim.
+
+## 2026-11-14 ~00:03 WIB — probe every function (node /tmp/probe.js)
+Probed sum, max, reverse, isPalindrome, factorial, clamp, unique, average,
+titleCase, countVowels against reference behaviour (normal + edge inputs:
+empty arrays, negatives, boundaries, uppercase, apostrophes, emoji).
+Outcome:
+- factorial(2)=1 (exp 2), factorial(3)=2 (exp 6), factorial(5)=24 (exp 120),
+  factorial(10)=362880 (exp 3628800); factorial(0)=factorial(1)=1 correct.
+- countVowels("AEIOU")=0 (exp 5), ("Apple")=1 (exp 2), ("HELLO")=0 (exp 2);
+  ("aeiou")=5 correct.
+- titleCase("hELLO WORLD")="HELLO WORLD" (exp "Hello World");
+  ("don't stop")="Don'T Stop" (exp "Don't Stop"); ("it's a test")="It'S A Test"
+  (exp "It's A Test"); ("hello world")="Hello World" correct.
+- reverse("😀a")="a\uDE00\uD83D" lone surrogates (exp "a😀");
+  reverse("😀") corrupted the same way; ASCII reverse correct.
+- isPalindrome("😀")=false (exp true), isPalindrome("a😀a")=false (exp true);
+  ("racecar")=true, ("hello")=false correct.
+- sum, clamp, unique: correct on all probed inputs.
+- max([])=undefined, average([])=NaN, isPalindrome("Racecar")=false,
+  factorial(negative)=1: investigated, NOT reported — no obviously-correct
+  reference behaviour (see README.md).
+
+## 2026-11-14 ~00:04 WIB — write deliverables
+$ wrote bugs.json (8 entries), verify.js, README.md
+Outcome: files written; bugs.json = 8 reports across 5 functions.
+
+## 2026-11-14 ~00:05 WIB — verification
+$ cd ~/workspace/aiprove-agent/bounties/bug-hunt-utils
+$ node --check verify.js && node -e "JSON.parse(...bugs.json...)"
+-> bugs.json: valid JSON, 8 entries
+$ node verify.js; echo "verify exit code: $?"
+-> all 8 entries: BUG REPRODUCED: true (actual != expected, reference == expected)
+-> "8/8 reported bugs reproduced and confirmed against the reference."
+-> verify exit code: 0
+Outcome: PASS. Nothing submitted to aiprove.fun (local read-only work only).

@@ -1,0 +1,34 @@
+# build.log — code-golf-expr
+# Every command run + outcome (appended as work proceeds).
+$ mkdir -p ~/workspace/aiprove-agent/bounties/code-golf-expr
+$ cat > solution.js (v1, recursive descent, 3 functions) ; wc -c solution.js
+-> 372 solution.js
+$ cat > test.js (9 public from cases.json + 41 hidden-style) ; node test.js
+-> ALL PASS (9 public + 41 hidden-style), exit=0
+$ cat > solution.js (v2: regex number scan /[\d.]/.test, comma-operator returns, while instead of for) ; wc -c ; node test.js
+-> 352 solution.js ; ALL PASS, exit=0
+$ cat > /tmp/pratt.js (Pratt single-function variant) ; wc -c ; node /tmp/test-pratt.js (test.js pointed at it)
+-> 324 /tmp/pratt.js ; ALL PASS, exit=0  (28 bytes shorter than v2 -> adopt Pratt)
+$ cp solution.js solution-v2-352.js ; cat > solution.js (v3: indexOf precedence '+-*/', array dispatch [v+w,v-w,v*w,v/w][o], unary -E(i++,2)) ; wc -c ; node test.js
+-> 274 solution.js ; ALL PASS, exit=0
+$ cp solution.js solution-v3-274.js ; cat > solution.js (v4: fold i++ into E(o,i++), braceless paren branch) ; wc -c ; node test.js
+-> 273 solution.js ; ALL PASS, exit=0
+$ cat > /tmp/vB.js (hoisted n + for/comma number loop) ; wc -c ; node /tmp/t.js
+-> 270 /tmp/vB.js ; FAIL [hidden-style] "+5" => got NaN, want 5 ; 1 FAILURES, exit=1  (REJECTED: v=+n inside loop body never runs on 0 iterations)
+$ cat > /tmp/vE.js (parameter-slot locals E=(m=-1,v,o,w,n)) ; wc -c ; node /tmp/t.js
+-> 267 /tmp/vE.js ; ALL PASS, exit=0  (adopt)
+$ cp /tmp/vE.js solution.js ; rm -f solution-v2-352.js solution-v3-274.js ; wc -c ; node test.js
+-> 267 solution.js ; ALL PASS, exit=0
+$ cat > fuzz.js (3000 random exprs vs JS eval, eval only in harness) ; node fuzz.js
+-> FUZZ 32 MISMATCHES, exit=1
+   e.g. "3.5*2/10" got 0.7000000000000001 want 0.7 ; "   2.5*2.5 /-5. /( 7 +-100)" got 116.25 want 0.0134...
+   ROOT CAUSE: raw indexOf gave +/- levels 0/1 and */ levels 2/3, so same-level
+   operators associated wrongly (a+(b-c), a*(b/c)) and unary minus grabbed a
+   following '/'. FIX: binding level o>>1 (shared per pair), unary -E(1,...).
+$ cp solution.js /tmp/vE-267-buggy.js ; cat > solution.js (v5: while(((o='+-*/'.indexOf(s[i]))>>1)>m){w=E(o>>1,i++);...} ; unary -E(1,i++)) ; wc -c ; node test.js ; node fuzz.js
+-> 275 solution.js ; ALL PASS (9 public + 41 hidden-style), exit=0 ; FUZZ PASS (3000 random exprs), exit=0
+$ sed -i 's/const N=3000/const N=20000/; s/expr(3)/expr(4)/' fuzz.js ; node fuzz.js
+-> FUZZ PASS (20000 random exprs), exit=0
+$ node -e (edge checks: 200-deep parens, 500-term chain, 1/0, 0/0, -0, tabs/newlines, 1000)
+-> deep200: PASS ; long chain: PASS ; 1/0: PASS ; 0/0 NaN: PASS ; -0: PASS ; tabs/newlines: PASS ; 1e3: PASS
+$ cat > README.md ; cat >> build.log (this file)

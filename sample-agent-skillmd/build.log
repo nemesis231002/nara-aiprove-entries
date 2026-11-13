@@ -1,0 +1,56 @@
+2026-11-14 00:05 WIB — node --check agent.mjs mock-server.mjs test.mjs => SYNTAX_OK
+---
+2026-11-14 ~00:05 WIB — npm test => exit 0, ALL TESTS PASSED (14 PASS, 0 FAIL)
+Mock loop evidence: fresh-keypair run entered sample-agent-skillmd, entryId entry-b3e840c76722, address 0xd13570b63b9776abBE86F3053287da4A17cEC41f (ephemeral test key, not saved)
+Negative checks: wrong-signer verify 401, missing-token enter 401, bogus-token enter 401; live-API guard refused with exit 2 (no ALLOW_LIVE_API=1)
+No write calls made to https://aiprove.fun at any point (live testing pending parent approval).
+---
+Full npm test output (2026-11-14, mock only):
+
+> aiprove-sample-agent-skillmd@1.0.0 test
+> node test.mjs
+
+PASS  mock server starts — http://127.0.0.1:36155
+PASS  mock /api/health
+--- agent run 1 (fresh keypair) output ---
+[1/4] Identity: address=0xd13570b63b9776abBE86F3053287da4A17cEC41f handle=nara.agent key=fresh random keypair (generated for this run only, not saved)
+[1/4] Read skill.md from http://127.0.0.1:36155/skill.md (686 bytes, endpoints verified)
+[2/4] Challenge received: AIProve login challenge for 0xd13570b63b9776abbe86f3053287da4a17cec41f — nonce 8...
+[2/4] Authenticated: address=0xd13570b63b9776abbe86f3053287da4a17cec41f token=mock-token-d... expiresAt=1794593050775
+[3/4] Open bounties (2):
+       - sample-agent-skillmd | Build a sample agent that reads skill.md and completes the auth → list → enter loop | 0.12 META | lane=AutoGrade | closes=2026-11-15T13:49:00Z
+       - write-article-aiprove | Write an article about AIProve | 500000 PROVE | lane=PosterJudge | closes=2026-11-20T00:00:00Z
+[4/4] Entering bounty: sample-agent-skillmd (Build a sample agent that reads skill.md and completes the auth → list → enter loop)
+[4/4] Entered: {"ok":true,"entryId":"entry-b3e840c76722","slug":"sample-agent-skillmd","handle":"nara.agent","address":"0xd13570b63b9776abbe86f3053287da4a17cec41f","enteredAt":"2026-11-13T17:04:10.825Z"}
+LOOP COMPLETE: skill.md read -> authenticated -> listed open bounties -> entered sample-agent-skillmd
+{
+  "address": "0xd13570b63b9776abBE86F3053287da4A17cEC41f",
+  "handle": "nara.agent",
+  "bounty": "sample-agent-skillmd",
+  "entered": {
+    "ok": true,
+    "entryId": "entry-b3e840c76722",
+    "slug": "sample-agent-skillmd",
+    "handle": "nara.agent",
+    "address": "0xd13570b63b9776abbe86f3053287da4a17cec41f",
+    "enteredAt": "2026-11-13T17:04:10.825Z"
+  }
+}
+
+--- end output ---
+PASS  agent exits 0 (fresh keypair) — exit=0
+PASS  agent reads skill.md
+PASS  agent authenticates
+PASS  agent lists open bounties
+PASS  agent lists sample-agent-skillmd
+PASS  agent enters sample-agent-skillmd
+PASS  agent prints LOOP COMPLETE
+PASS  agent exits 0 (env key) — exit=0
+PASS  agent uses supplied key address
+PASS  agent does not leak private key
+PASS  verify rejects wrong-signer signature (401) — status=401
+PASS  enter rejects missing token (401) — status=401
+PASS  enter rejects bogus token (401) — status=401
+PASS  live API refused without ALLOW_LIVE_API=1 — exit=2
+
+ALL TESTS PASSED

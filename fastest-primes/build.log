@@ -1,0 +1,69 @@
+# build.log — fastest-primes (AIProve bounty)
+# Every command run during development, in order, with its outcome.
+# Dates: 2026-11-14 (WIB). Machine: Linux x86_64 VM, shared 1.5 CPU.
+# Nothing was submitted to aiprove.fun; local work only.
+
+$ gcc --version
+gcc (Ubuntu 13.3.0-6ubuntu2) 13.3.0
+$ ls ~/workspace/aiprove-agent/bounties/fastest-primes/
+(no such directory — created it)
+$ nproc; uname -m
+4; x86_64
+
+$ gcc -O3 -o primes primes.c && gcc -O3 -o primes_bitset primes_bitset.c
+BUILD_OK (odd-only byte sieve vs odd-only bitset sieve)
+$ for N in 10 100 1000 100000 1000000 5000000: run both
+byte == bitset on all: 4, 25, 168, 9592, 78498, 348513; N=1->0, 2->1, 3->2
+
+$ python3 bench (200 reps, subprocess wall-clock incl. spawn)
+./primes        N=100000: median 1.534 ms | N=1000000: 2.680 ms | N=5000000: 8.543 ms
+./primes_bitset N=100000: median 1.539 ms | N=1000000: 2.426 ms | N=5000000: 7.039 ms
+
+$ gcc -O3 -o /tmp/probe /tmp/probe.c && /tmp/probe   (in-process 200x repeat)
+byte sieve 4.81 ms/run; bitset sieve 5.42 ms/run (compute only, warm cache)
+$ python3 spawn baseline: /tmp/empty median 1.365 ms; ./primes median 8.682 ms
+
+$ gcc -O3 -march=native -o primes_native primes.c && gcc -O3 -march=native -o primes_bitset_native primes_bitset.c
+$ gcc -O3 -o /tmp/probe2 /tmp/probe2.c && /tmp/probe2   (segmented byte sieve probe)
+segmented byte 3.46 ms/run in-process vs plain byte 4.68 ms/run
+$ python3 bench (150 reps, N=5M): primes 8.821 ms; primes_native 8.270 ms;
+  primes_bitset 7.187 ms; primes_bitset_native 7.272 ms
+
+$ gcc -O3 -o primes_seg primes_seg.c && gcc -O3 -o primes_segbit primes_segbit.c
+correct on N=1,2,3,10,100,1000,100000,1000000,5000000 (0,1,2,4,25,168,9592,78498,348513)
+$ python3 bench (150 reps, N=5M): primes 8.861 ms; bitset 7.155 ms;
+  primes_seg 7.632 ms; primes_segbit 7.163 ms
+
+$ gcc -O3 -o primes_fast primes_fast.c   (pattern-OR bitset, PAT_MAX=61)
+correct on N=1,2,3,4,5,6,7,10,11,25,100,1000,100000,1000000,5000000
+$ python3 cross-check vs independent Python sieve: 58 values (incl. 30 random
+  N in [1,5000000]): 0 mismatches
+$ gcc -O3 -march=native -o primes_fast_native primes_fast.c
+$ python3 bench (200 reps, N=5M): bitset 7.068 ms; segbit 6.996 ms;
+  primes_fast 4.631 ms (min 4.464 ms); primes_fast_native 4.519 ms
+$ python3 bench per-N: N=10 fast 1.385 ms / bitset 1.390 ms;
+  N=100000 fast 1.497 / bitset 1.531; N=1000000 fast 2.046 / bitset 2.450;
+  N=5000000 fast 4.661 / bitset 6.828
+
+$ sed PAT_MAX 61->127,251; build /tmp/pf127 /tmp/pf251; both output 348513 at N=5M
+$ python3 bench (200 reps, N=5M): PAT_MAX=61: 4.662 ms; PAT_MAX=127: 5.221 ms;
+  PAT_MAX=251: 6.734 ms  => kept PAT_MAX=61; -march=native dropped (only
+  ~0.1 ms faster, illegal-instruction risk on a different grader CPU)
+
+$ cp primes_fast.c primes.c; moved rejected variants to experiments/
+$ cat > build.sh / run.sh / test.sh; chmod +x
+$ ./build.sh
+BUILD_OK
+$ ./test.sh
+ok N=1->0, N=2->1, N=3->2, N=10->4, N=100->25, N=1000->168,
+   N=100000->9592, N=1000000->78498, N=5000000->348513
+python cross-check: 49 values, mismatches: 0
+ALL PUBLIC + EDGE CASES PASS
+benchmark (median of 200, incl. spawn):
+  N=100000: median 1.494 ms min 1.381 ms
+  N=1000000: median 2.022 ms min 1.897 ms
+  N=5000000: median 4.638 ms min 4.496 ms
+
+# Final state: primes.c == primes_fast.c (PAT_MAX=61, -O3), binary rebuilt
+# from it via ./build.sh and re-verified by ./test.sh. Submission-ready.
+# NOT submitted to aiprove.fun (per task rules: local work only).

@@ -1,0 +1,1 @@
+exports.evalExpr=s=>{s=s.replace(/\s/g,'');let i=0,E=(m=-1,v,o,w,n)=>{if(s[i]=='-')v=-E(1,i++);else if(s[i]=='(')i++,v=E(),i++;else{n='';while(/[\d.]/.test(s[i]))n+=s[i++];v=+n}while(((o='+-*/'.indexOf(s[i]))>>1)>m){w=E(o>>1,i++);v=[v+w,v-w,v*w,v/w][o]}return v};return E()}

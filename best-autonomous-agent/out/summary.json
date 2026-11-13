@@ -1,0 +1,113 @@
+{
+  "mode": "mock",
+  "startedAt": "2026-11-13T17:08:48.113Z",
+  "address": "0xe48F4E8683b1acD57285B104dEf3B0f6781D5c7A",
+  "ephemeralKey": true,
+  "skillMdRead": true,
+  "entered": [
+    "btc-tomorrow",
+    "forecast-eth-24h",
+    "forecast-btc-7d",
+    "signal-eth-pnl-24h",
+    "spy-close-1dollar",
+    "forecast-gold-tomorrow",
+    "forecast-nvda-3d",
+    "code-golf-expr",
+    "fastest-primes",
+    "bug-hunt-utils",
+    "eth-pnl-fixed",
+    "write-article-aiprove",
+    "make-meme-aiprove"
+  ],
+  "submitted": [
+    {
+      "slug": "btc-tomorrow",
+      "submission": "bd0cd454-de41-4cac-b5d1-36cb4cdb44ac"
+    },
+    {
+      "slug": "forecast-eth-24h",
+      "submission": "e5e5b65b-65ab-4631-9d6a-05aba60483fd"
+    },
+    {
+      "slug": "forecast-btc-7d",
+      "submission": "45389f1b-6434-4024-86b4-095fb2020326"
+    },
+    {
+      "slug": "signal-eth-pnl-24h",
+      "submission": "454d6604-caf8-4593-998b-987c4f2cec16"
+    },
+    {
+      "slug": "spy-close-1dollar",
+      "submission": "c822943e-b86a-4109-810e-adf5fbc629ee"
+    },
+    {
+      "slug": "forecast-gold-tomorrow",
+      "submission": "4ca71ec9-b5b9-4199-8379-0fcb580e852a"
+    },
+    {
+      "slug": "forecast-nvda-3d",
+      "submission": "5719fe64-6264-4a87-a5ca-b6375883f572"
+    },
+    {
+      "slug": "code-golf-expr",
+      "submission": "b8433caa-819b-413e-b4a2-ba30608f2865"
+    },
+    {
+      "slug": "fastest-primes",
+      "submission": "e58235ee-55c1-43a2-ae4a-c7d810922928"
+    },
+    {
+      "slug": "bug-hunt-utils",
+      "submission": "ea254f33-2a01-467f-90d5-341fc4dd983c"
+    },
+    {
+      "slug": "eth-pnl-fixed",
+      "submission": "045e353d-40d7-46a4-9f19-a3d12348a27f"
+    },
+    {
+      "slug": "write-article-aiprove",
+      "submission": "41443116-c973-4232-924e-5d22164b5770"
+    },
+    {
+      "slug": "make-meme-aiprove",
+      "submission": "2336ac0d-f2ef-442d-b004-849ebbd66697"
+    }
+  ],
+  "skipped": [
+    {
+      "slug": "top5-pons-24h",
+      "reason": "no data source for future top-5 pons launches; guessing 5 tickers is not a credible submission"
+    },
+    {
+      "slug": "refer-most-agents",
+      "reason": "requires recruiting other agents; cannot be completed by one agent alone"
+    },
+    {
+      "slug": "post-on-x-aiprove",
+      "reason": "requires posting from an X account; no X credentials in scope"
+    },
+    {
+      "slug": "make-art-aiprove",
+      "reason": "requires original image generation; no image model callable from this repo"
+    },
+    {
+      "slug": "aiprove-mascot",
+      "reason": "requires original character design; no image model callable from this repo"
+    },
+    {
+      "slug": "explainer-video-aiprove",
+      "reason": "requires 60s video production; no video pipeline callable from this repo"
+    },
+    {
+      "slug": "sample-agent-skillmd",
+      "reason": "the sibling sample-agent entry; out of scope for this orchestrator (it IS the loop, not a target)"
+    },
+    {
+      "slug": "best-autonomous-agent",
+      "reason": "this bounty itself; cannot be completed by entering itself"
+    }
+  ],
+  "failed": [],
+  "finishedAt": "2026-11-13T17:08:53.038Z",
+  "transcriptSha256": "d9441a05a19f3537b2698963935d5e64f559964c8ebc7978f97f8bc3413dda39"
+}

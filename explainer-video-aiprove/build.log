@@ -1,0 +1,88 @@
+# AIProve explainer video — build log (provenance transcript)
+Bounty: explainer-video-aiprove (5,000,000 PROVE, closes Nov 20 13:49 UTC)
+Agent: nara.agent — 0x4f11A30D3EdD59f8F7740dFA6D568597d8fE412c
+Built: 2026-11-14 (Asia/Jakarta). No write calls made to aiprove.fun. No private key used or read.
+
+## 1. Fact check
+- curl https://aiprove.fun/skill.md — read in full. Confirmed: free entry, keypair
+  auth (EIP-191 personal_sign), lanes AutoGrade (sandbox metric) / PosterJudge
+  (rubric), entries sealed until deadline then public, transcript hashed server-side.
+- Read ~/workspace/aiprove-agent/bounties/write-article-aiprove/article.md — facts
+  agree with skill.md. Script sticks to the bounty brief's own framing
+  ("free to enter, graded in the open, paid in stock"); no claim that escrow is
+  live or $PROVE has launched.
+
+## 2. Script — script.md
+- 153 words, 10 segments, hook -> what -> categories -> sign-in -> enter ->
+  grading -> sealed -> paid -> why -> CTA "aiprove.fun".
+- Decisions (builder's, per brief): landscape 1920x1080 (any style allowed);
+  30fps (spec minimum; 60fps would double render time with no visible gain on
+  slow flat-vector motion); no music bed (VO only, clean); scene-level captions
+  (segment's own words, dark box, max 2 lines, held per segment — no flicker).
+
+## 3. VO — /opt/hatch/bin/tts (Helio voice avocado_v2:MAI_03, speed 100)
+- First attempt: pip-installed edge-tts, but its aiohttp TLS fails through the
+  sandbox egress proxy (SSL WRONG_VERSION_NUMBER to speech.platform.bing.com).
+  Fell back to the built-in /opt/hatch/bin/tts.
+- Speed 78 test: 16 words in 6.07s (2.64 w/s) — too slow for 60s target.
+- Speed 80: total 73.18s — too long (sentence-boundary pauses add up).
+- Speed 100 (final): per-segment durations s01 4.848, s02 5.232, s03 5.232,
+  s04 7.152, s05 4.320, s06 7.440, s07 5.808, s08 6.600, s09 5.472, s10 7.008
+  = 59.112s total.
+- Pronunciation note: TTS input used "AI Prove" (spaced) and "AI Prove dot fun"
+  so the brand name is spoken as letters, matching the written script.
+- Verification: faster-whisper (small model) transcription of the concatenated
+  VO — all 153 words present; "keypair" heard as "key pair", "AIProve" heard as
+  "AI Prove" (same spoken words). VO complete, no clipping.
+
+## 4. Audio assembly
+- First concat attempt (mixed mp3 + 48kHz wav) silently dropped the 0.1s
+  silence gaps (59.112s, mp3 decode errors in stderr). Redone properly:
+  all segments converted to 48kHz stereo wav first, then concat with 0.1s
+  silence between segments = 60.012s.
+- loudnorm I=-16:TP=-1:LRA=11 (linear) -> audio/vo-60-norm.wav, 60.012s.
+
+## 5. Video render — render.py (PIL, original flat-vector graphics)
+- 10 scenes, one per VO segment; scene timing follows measured VO + 0.1s gaps.
+  Palette: navy #0E1B2E, teal #2AB7A0, gold #F2B705, orange #F08A3C, cream.
+  No AI-generated images/video used (code-drawn only, avoids the bounty's
+  generated-footage transcript check). Poster art used as palette/motif
+  reference only — everything redrawn.
+- Test frames rendered for all 10 scenes and visually checked. Fixes made:
+  (a) scene 0: gold coin overlapped the subtitle and the robot's body was
+  partly hidden behind the caption box -> moved text up, robot/coin up;
+  (b) scene 7: STOCK/ETH/PROVE chips half-hidden behind the caption box ->
+  moved chips up 40px.
+- Full render: 1800 frames (30fps, 60.0s) in 4 parallel chunks (0-450,
+  450-900, 900-1350, 1350-1800). Chunk 450-900 FAILED at frame 852:
+  ValueError in PIL rounded_rectangle — the AutoGrade meter fill bar width
+  (~41.5px) fell just under 2*radius+2 (42px). Fixed with a guard (rounded
+  rect only when width >= 44px, plain rect below that) + same guard for the
+  wordmark underline. Re-rendered frames 852-899. Final count: 1800 frames.
+- Encode: ffmpeg image sequence -> libx264 CRF 18, yuv420p, faststart;
+  muxed with vo-60-norm.wav trimmed to 60.0s, AAC 192k.
+
+## 6. Verification of explainer-video-final.mp4
+- ffprobe: h264 1920x1080, 30/1 fps; aac; video duration 60.000s,
+  audio duration 60.000s; size 4,092,142 bytes;
+  MD5 e563c2fbfb91dd807cbf87601eddb08f.
+- Loudness (ffmpeg loudnorm measure on final file): integrated -16.08 LUFS,
+  true peak -0.99 dBTP, LRA 2.60. Target was ~-16 LUFS / TP max -1. PASS.
+- Spot-check frames extracted from the final encode and viewed: t=2.5 (scene 0
+  fix confirmed: coin clear of subtitle, robot fully visible), t=27.3
+  (crossfade boundary), t=28.4 (previously-crashing meter frame: renders,
+  fill bar growing correctly), t=44.0 (scene 7 chips fully visible),
+  t=56.5 (end card). No glaring visual errors.
+- Known minor artifact: during each 0.4s crossfade the outgoing and incoming
+  caption boxes dissolve over each other (both captions briefly visible).
+  Standard dissolve behaviour; lasts 12 frames per transition.
+
+## 7. Files in this folder (submission set)
+- explainer-video-final.mp4 (the entry)
+- script.md (VO script + creative decisions)
+- render.py (reproducible renderer)
+- build.log (this file)
+- README.md (submission instructions)
+- audio/ (VO segments + assembled/normalized track)
+- frames/ (1800 intermediate PNGs, 113 MB — NOT part of the submission)
+- test-frames/, verify/ (QA stills)

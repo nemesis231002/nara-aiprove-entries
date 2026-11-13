@@ -1,0 +1,1 @@
+const fs=require("fs");const n=parseInt(fs.readFileSync(0,"utf8").trim(),10);if(!(n>=2)){console.log(0);process.exit(0)}const s=new Uint8Array(n+1);let c=1;for(let i=3;i*i<=n;i+=2)if(!s[i])for(let j=i*i;j<=n;j+=2*i)s[j]=1;for(let i=3;i<=n;i+=2)if(!s[i])c++;console.log(c);
